@@ -46,7 +46,7 @@ The HBnB application follows a three-layer architecture that separates concerns 
 
 ### **2.2 Package Diagram**
 
-'''mermaid
+```mermaid
 classDiagram
 class PresentationLayer {
     +User
@@ -72,7 +72,7 @@ class PersistenceLayer {
 
 PresentationLayer ..> BusinessLogicLayer : Facade Pattern
 BusinessLogicLayer ..> PersistenceLayer : Database Operations
-'''
+```
 
 **Diagram Explanation:**
 - Dotted arrows (..>) represent dependency relationships, showing that one layer uses services from another
@@ -111,7 +111,7 @@ User - Represents platform users Place - Represents rental properties Review - R
 
 ### **3.2 Detailed Class Diagram**
 
-'''mermaid
+```mermaid
 classDiagram
 direction LR
 
@@ -169,7 +169,7 @@ User "1" --> "" Place : owns
 User "1" --> "" Review : writes
 Place "1" --> "" Review : has
 Place "" -- "*" Amenity : includes
-'''
+```
 
 ### **3.3 Entity Descriptions**
 
@@ -272,7 +272,7 @@ ________________________________________
 
 **Flow Description:** This sequence shows how a new user registers, including email validation, password hashing, and database persistence.
 
-'''mermaid
+```mermaid
 sequenceDiagram
    autonumber
    participant U as User (Client)
@@ -316,7 +316,7 @@ sequenceDiagram
            API-->>U: 201 Created {id,email,first_name,last_name,is_admin,created_at,updated_at}
        end
    end
-'''
+```
 
 **Key Steps:**
 1.	Client sends registration data to API
@@ -338,7 +338,7 @@ ________________________________________
 
 **Flow Description:** Authenticated users create property listings. The process includes authentication, coordinate validation, and amenity linking.
 
-'''mermaid
+```mermaid
 sequenceDiagram
     autonumber
     participant U as User (Client)
@@ -386,7 +386,7 @@ sequenceDiagram
             end
         end
     end
-'''
+```
 
 **Key Steps:**
 1.	Client sends place data with auth token
@@ -409,7 +409,7 @@ ________________________________________
 
 **Flow Description:** Users submit reviews for places. Includes validation to prevent duplicate reviews and ensure rating validity.
 
-'''mermaid
+```mermaid
 sequenceDiagram
    autonumber
    participant U as User
@@ -483,7 +483,7 @@ sequenceDiagram
            end
        end
    end
-'''
+```
 
 **Key Steps:**
 1.	Client submits review with authentication
@@ -506,7 +506,7 @@ ________________________________________
 
 **Flow Description:** Retrieves filtered list of places with their amenities and ratings. Supports price and amenity filters.
 
-'''mermaid
+```mermaid
 sequenceDiagram
     autonumber
     participant C as User (Client)
@@ -534,7 +534,7 @@ sequenceDiagram
         F-->>API: places list
         API-->>C: 200 OK (list of places, can be empty)
     end
-'''
+```
 
 **Key Steps:**
 1.	Client requests places with optional filters
