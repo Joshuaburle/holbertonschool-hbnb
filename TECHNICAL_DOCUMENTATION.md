@@ -1,5 +1,7 @@
 # **HBnB Evolution - Technical Design Documentation**
+
 **Project:** HBnB Evolution Application
+
 **Authors:** Nicolas DA SILVA, Joshua BURLE, Alexandre GUILLAMON
 ________________________________________
 ## **1. Introduction**
