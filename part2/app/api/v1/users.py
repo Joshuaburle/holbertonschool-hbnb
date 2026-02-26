@@ -1,5 +1,4 @@
 from flask_restx import Namespace, Resource, fields
-
 from ...services import facade
 
 api = Namespace("users", description="User operations")
@@ -25,7 +24,7 @@ class UserList(Resource):
     def post(self):
         """Create a new user"""
         try:
-            return facade.create_user(request.json), 201
+            return facade.create_user(api.payload), 201
         except ValueError as e:
             api.abort(400, str(e))
 
