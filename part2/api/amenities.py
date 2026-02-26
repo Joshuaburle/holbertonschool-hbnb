@@ -1,4 +1,3 @@
-from flask import request
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 
@@ -17,8 +16,8 @@ class AmenityList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new amenity"""
+        data = api.payload
         try:
-            data = request.json
             amenity = facade.create_amenity(data)
 
             return {
@@ -26,8 +25,8 @@ class AmenityList(Resource):
                 "name": amenity.name
             }, 201
 
-        except ValueError as e:
-            return {"error": str(e)}, 400
+        except (ValueError, TypeError):
+            return {"error": "Invalid input data"}, 400
 
 
     @api.response(200, 'List of amenities retrieved successfully')
@@ -70,9 +69,9 @@ class AmenityResource(Resource):
     @api.response(400, 'Invalid input data')
     def put(self, amenity_id):
         """Update an amenity's information"""
+        data = api.payload
 
         try:
-            data = request.json
             amenity = facade.update_amenity(amenity_id, data)
 
             if not amenity:
@@ -80,5 +79,5 @@ class AmenityResource(Resource):
 
             return {"message": "Amenity updated successfully"}, 200
 
-        except ValueError as e:
-            return {"error": str(e)}, 400
+        except (ValueError, TypeError):
+            return {"error": "Invalid input data"}, 400
