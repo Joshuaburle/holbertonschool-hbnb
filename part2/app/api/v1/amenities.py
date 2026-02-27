@@ -11,7 +11,7 @@ amenity_model = api.model('Amenity', {
 @api.route('/')
 class AmenityList(Resource):
 
-    @api.expect(amenity_model)
+    @api.expect(amenity_model, validate=True)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
@@ -19,29 +19,18 @@ class AmenityList(Resource):
         data = api.payload
         try:
             amenity = facade.create_amenity(data)
-
             return {
-                "id": amenity.id,
-                "name": amenity.name
+                "id": amenity["id"],
+                "name": amenity["name"]
             }, 201
-
         except (ValueError, TypeError):
             return {"error": "Invalid input data"}, 400
-
 
     @api.response(200, 'List of amenities retrieved successfully')
     def get(self):
         """Retrieve a list of all amenities"""
-
         amenities = facade.get_all_amenities()
-
-        return [
-            {
-                "id": amenity.id,
-                "name": amenity.name
-            }
-            for amenity in amenities
-        ], 200
+        return amenities, 200
 
 
 @api.route('/<amenity_id>')
@@ -51,33 +40,23 @@ class AmenityResource(Resource):
     @api.response(404, 'Amenity not found')
     def get(self, amenity_id):
         """Get amenity details by ID"""
-
-        amenity = facade.get_amenity(amenity_id)
-
-        if not amenity:
+        try:
+            amenity = facade.get_amenity(amenity_id)
+            return amenity, 200
+        except ValueError:
             return {"error": "Amenity not found"}, 404
 
-        return {
-            "id": amenity.id,
-            "name": amenity.name
-        }, 200
-
-
-    @api.expect(amenity_model)
+    @api.expect(amenity_model, validate=True)
     @api.response(200, 'Amenity updated successfully')
-    @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
+    @api.response(404, 'Amenity not found')
     def put(self, amenity_id):
         """Update an amenity's information"""
         data = api.payload
-
         try:
             amenity = facade.update_amenity(amenity_id, data)
-
             if not amenity:
                 return {"error": "Amenity not found"}, 404
-
             return {"message": "Amenity updated successfully"}, 200
-
         except (ValueError, TypeError):
             return {"error": "Invalid input data"}, 400
