@@ -53,10 +53,11 @@ class PlaceResource(Resource):
     @api.response(404, 'Place not found')
     def get(self, place_id):
         """Get place details by ID"""
-        place = facade.get_place(place_id)
-        if not place:
+        try:
+            place = facade.get_place(place_id)
+            return place, 200
+        except ValueError:
             return {"error": "Place not found"}, 404
-        return place, 200
 
     @api.expect(place_model)
     @api.response(200, 'Place updated successfully')
