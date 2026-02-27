@@ -74,6 +74,26 @@ class HBnBFacade:
                 }
 
         return None
+    
+    def update_user(self, user_id, data):
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+
+        if "email" in data:
+            new_email = data.get("email")
+            for u in self.user_repo.get_all():
+                if u.email == new_email and u.id != user_id:
+                    raise ValueError(f"User with email '{new_email}' already exists")
+
+        user.update(data)
+
+        return {
+            "id": user.id,
+            "first_name": user.first_name,
+            "last_name": user.last_name,
+            "email": user.email
+        }
 
     # Place Management Methods
     def create_place(self, place_data):

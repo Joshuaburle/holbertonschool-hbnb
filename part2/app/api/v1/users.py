@@ -64,3 +64,13 @@ class UserDetail(Resource):
             return facade.get_user(user_id)
         except ValueError as e:
             api.abort(404, str(e))
+
+    def put(self, user_id):
+            """Update a user"""
+            try:
+                updated = facade.update_user(user_id, api.payload)
+                if not updated:
+                    api.abort(404, "User not found")
+                return updated, 200
+            except (ValueError, TypeError) as e:
+                api.abort(400, str(e))
