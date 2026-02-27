@@ -97,9 +97,11 @@ class HBnBFacade:
             price=place_data.get("price"),
             latitude=place_data.get("latitude"),
             longitude=place_data.get("longitude"),
-            owner=owner,
-            amenities=amenities
+            owner=owner
             )
+
+        for amenity in amenities:
+            place.add_amenity(amenity)
 
         self.place_repo.add(place)
 
