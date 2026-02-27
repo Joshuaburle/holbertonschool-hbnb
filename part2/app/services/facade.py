@@ -101,7 +101,7 @@ class HBnBFacade:
             amenities=amenities
             )
 
-        self.place_repo.add(place.id, place)
+        self.place_repo.add(place)
 
 
         return {
