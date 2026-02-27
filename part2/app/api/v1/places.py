@@ -38,8 +38,8 @@ class PlaceList(Resource):
         try:
             result = facade.create_place(place_data)
             return result, 201
-        except (ValueError, TypeError):
-            return {"error": "Invalid input data"}, 400
+        except Exception as e:
+            return {"error": str(e)}, 400
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
