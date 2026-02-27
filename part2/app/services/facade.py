@@ -174,9 +174,9 @@ class HBnBFacade:
         if not place:
             return None
 
-        for field in ["title", "description", "price", "latitude", "longitude"]:
-            if field in place_data:
-                setattr(place, field, place_data[field])
+        simple_fields = {k: v for k, v in place_data.items()
+                        if k in {"title", "description", "price", "latitude", "longitude"}}
+        place.update(simple_fields)
 
         if "owner_id" in place_data:
             owner = self.user_repo.get(place_data["owner_id"])
@@ -196,19 +196,21 @@ class HBnBFacade:
         return {"message": "Place updated successfully"}
 
     # Review Management Methods
-    def create_review(self, text, rating, user_id, place_id):
+    def create_review(self, review_data):
         from app.models.review import Review
 
+        user_id = review_data.get("user_id")
+        place_id = review_data.get("place_id")
+        text = review_data.get("text")
+        rating = review_data.get("rating")
         user = self.user_repo.get(user_id)
         if not user:
             raise ValueError(f"User {user_id} does not exist")
-
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place {place_id} does not exist")
-
         review = Review(text=text, rating=rating, place=place, user=user)
-        self.review_repo.add(review.id, review)
+        self.review_repo.add(review)
         return {
             "id": review.id,
             "text": review.text,
@@ -255,10 +257,6 @@ class HBnBFacade:
             }
             for r in self.review_repo.get_all() if r.place.id == place_id
         ]
-
-        if not review:
-            raise ValueError(f"No reviews found for place {place_id}")
-        return review
 
     def update_review(self, review_id, update_data):
         review = self.review_repo.get(review_id)
