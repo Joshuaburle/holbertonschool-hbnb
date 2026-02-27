@@ -27,9 +27,12 @@ hbnb/
 │   ├── services/
 │   │   ├── __init__.py        # Facade singleton
 │   │   └── facade.py          # HBnBFacade - communication between layers
-│   └── persistence/
-│       ├── __init__.py
-│       └── repository.py      # In-memory repository (temporary storage)
+│   ├── persistence/
+│   |    ├── __init__.py
+│   |    └── repository.py      # In-memory repository (temporary storage)
+|   └── tests/
+|       ├── unittest_hbnb.py
+│       └── Testing_report.md
 ├── run.py                     # Application entry point
 ├── config.py                  # Environment configuration
 ├── requirements.txt           # Python dependencies
