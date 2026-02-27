@@ -25,12 +25,7 @@ class ReviewList(Resource):
                 return {"error": f"{field} is required"}, 400
 
         try:
-            new_review = facade.create_review(
-                text=data['text'],
-                rating=data['rating'],
-                user_id=data['user_id'],
-                place_id=data['place_id']
-            )
+            new_review = facade.create_review(data)
             return new_review, 201
         except (ValueError, TypeError):
             return {"error": "Invalid input data"}, 400
