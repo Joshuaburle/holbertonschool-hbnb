@@ -271,7 +271,7 @@ class HBnBFacade:
                 raise ValueError(f"Amenity '{name}' already exists")
 
         amenity = Amenity(name=name)
-        self.amenity_repo.add(amenity.id, amenity)
+        self.amenity_repo.add(amenity)
 
         return {
             "id": amenity.id,
