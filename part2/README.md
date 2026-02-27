@@ -27,9 +27,12 @@ hbnb/
 │   ├── services/
 │   │   ├── __init__.py        # Facade singleton
 │   │   └── facade.py          # HBnBFacade - communication between layers
-│   └── persistence/
-│       ├── __init__.py
-│       └── repository.py      # In-memory repository (temporary storage)
+│   ├── persistence/
+│   |    ├── __init__.py
+│   |    └── repository.py      # In-memory repository (temporary storage)
+|   └── tests/
+|       ├── unittest_hbnb.py
+│       └── Testing_report.md
 ├── run.py                     # Application entry point
 ├── config.py                  # Environment configuration
 ├── requirements.txt           # Python dependencies
@@ -78,6 +81,58 @@ python run.py
 
 The API will be available at: `http://127.0.0.1:5000`  
 Interactive API documentation (Swagger UI): `http://127.0.0.1:5000/api/v1/`
+
+### cURL Examples (Terminal Only)
+
+## Create a user
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/users/" -H "Content-Type: application/json" -d '{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com"
+}'
+```
+
+## Create an amenity
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/amenities/" -H "Content-Type: application/json" -d '{
+    "name": "WiFi"
+}'
+```
+
+## Create a place
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/places/" -H "Content-Type: application/json" -d '{
+    "title": "Cozy Studio",
+    "description": "Near center",
+    "price": 80,
+    "latitude": 48.8566,
+    "longitude": 2.3522,
+    "owner_id": "<OWNER_ID>",
+    "amenities": ["<AMENITY_ID>"]
+}'
+```
+
+## Create a review
+
+```bash
+curl -X POST "http://127.0.0.1:5000/api/v1/reviews/" -H "Content-Type: application/json" -d '{
+    "text": "Great place",
+    "rating": 5,
+    "user_id": "<REVIEWER_ID>",
+    "place_id": "<PLACE_ID>"
+}'
+```
+
+## Get reviews by place
+
+```bash
+curl -X GET "http://127.0.0.1:5000/api/v1/places/<PLACE_ID>/reviews"
+```
+
 
 ---
 
