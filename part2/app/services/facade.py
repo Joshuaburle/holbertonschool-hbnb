@@ -12,15 +12,24 @@ class HBnBFacade:
         from app.models.user import User
 
         email = user_data.get("email")
+        first_name = user_data.get("first_name", "").strip()
+        last_name = user_data.get("last_name", "").strip()
+
         if not email:
             raise ValueError("Email is required")
+        if not first_name and not last_name:
+            raise ValueError("First name and last name cannot both be empty")
+        if not first_name:
+            raise ValueError("First name cannot be empty")
+        if not last_name:
+            raise ValueError("Last name cannot be empty")
 
         for user in self.user_repo.get_all():
             if user.email == email:
                 raise ValueError(f"User with email '{email}' already exists")
 
         user = User(**user_data)
-        self.user_repo.add(user.id, user)
+        self.user_repo.add(user)
 
         return {
             "id": user.id,
@@ -42,6 +51,17 @@ class HBnBFacade:
             "email": user.email
         }
 
+    def get_all_users(self):
+        """Retourne tous les users sous forme de liste de dicts"""
+        return [
+            {
+                "id": u.id,
+                "first_name": u.first_name,
+                "last_name": u.last_name,
+                "email": u.email
+            }
+            for u in self.user_repo.get_all()
+        ]
 
     def get_user_by_email(self, email):
         for user in self.user_repo.get_all():
