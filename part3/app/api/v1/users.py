@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required
 from ...services import facade
 
 api = Namespace("users", description="User operations")
@@ -42,6 +43,7 @@ user_query_parser.add_argument(
 @api.route("/")
 class UserList(Resource):
 
+    @jwt_required()
     @api.expect(user_query_parser)
     @api.marshal_list_with(user_model)
     def get(self):
@@ -70,6 +72,7 @@ class UserList(Resource):
 @api.route("/<string:user_id>")
 class UserDetail(Resource):
 
+    @jwt_required()
     @api.marshal_with(user_model)
     def get(self, user_id):
         """Get a user by id"""
@@ -81,6 +84,7 @@ class UserDetail(Resource):
         except ValueError as e:
             api.abort(404, str(e))
 
+    @jwt_required()
     @api.expect(user_update_model, validate=True)
     @api.marshal_with(user_model)
     def put(self, user_id):

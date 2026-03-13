@@ -114,6 +114,22 @@ class HBnBFacade:
             "updated_at": user.updated_at.isoformat()
         }
 
+            def authenticate_user(self, email, password):
+        if not email or not password:
+            return None
+
+        for user in self.user_repo.get_all():
+            if user.email == email and user.verify_password(password):
+                return {
+                    "id": user.id,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name,
+                    "email": user.email,
+                    "is_admin": user.is_admin
+                }
+
+        return None
+
     # Place Management Methods
     def create_place(self, place_data):
         from app.models.place import Place
@@ -355,3 +371,4 @@ class HBnBFacade:
             "id": amenity.id,
             "name": amenity.name
         }
+
