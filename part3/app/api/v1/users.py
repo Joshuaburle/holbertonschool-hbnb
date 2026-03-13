@@ -1,5 +1,5 @@
 from flask_restx import Namespace, Resource, fields
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from ...services import facade
 
 api = Namespace("users", description="User operations")
@@ -25,9 +25,6 @@ user_create_model = api.model("UserCreate", {
 user_update_model = api.model("UserUpdate", {
     "first_name": fields.String(required=False),
     "last_name": fields.String(required=False),
-    "email": fields.String(required=False),
-    "password": fields.String(required=False),
-    "is_admin": fields.Boolean(required=False),
 })
 
 # Parser for query params
@@ -43,7 +40,6 @@ user_query_parser.add_argument(
 @api.route("/")
 class UserList(Resource):
 
-    @jwt_required()
     @api.expect(user_query_parser)
     @api.marshal_list_with(user_model)
     def get(self):
@@ -72,7 +68,6 @@ class UserList(Resource):
 @api.route("/<string:user_id>")
 class UserDetail(Resource):
 
-    @jwt_required()
     @api.marshal_with(user_model)
     def get(self, user_id):
         """Get a user by id"""
@@ -89,6 +84,11 @@ class UserDetail(Resource):
     @api.marshal_with(user_model)
     def put(self, user_id):
         """Update a user"""
+        current_user_id = get_jwt_identity()
+
+        if current_user_id != user_id:
+            api.abort(403, "You can only modify your own user")
+
         try:
             updated = facade.update_user(user_id, api.payload)
             if not updated:

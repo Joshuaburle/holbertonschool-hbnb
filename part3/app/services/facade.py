@@ -1,5 +1,6 @@
 from app.persistence.repository import InMemoryRepository
 
+
 class HBnBFacade:
     def __init__(self):
         self.user_repo = InMemoryRepository()
@@ -42,7 +43,6 @@ class HBnBFacade:
             "updated_at": user.updated_at.isoformat()
         }
 
-
     def get_user(self, user_id):
         user = self.user_repo.get(user_id)
         if not user:
@@ -58,9 +58,7 @@ class HBnBFacade:
             "updated_at": user.updated_at.isoformat()
         }
 
-
     def get_all_users(self):
-        """Return all users as list of dictionaries"""
         return [
             {
                 "id": u.id,
@@ -74,7 +72,6 @@ class HBnBFacade:
             for u in self.user_repo.get_all()
         ]
 
-
     def get_user_by_email(self, email):
         for user in self.user_repo.get_all():
             if user.email == email:
@@ -87,9 +84,7 @@ class HBnBFacade:
                     "created_at": user.created_at.isoformat(),
                     "updated_at": user.updated_at.isoformat()
                 }
-
         return None
-
 
     def update_user(self, user_id, data):
         user = self.user_repo.get(user_id)
@@ -97,10 +92,11 @@ class HBnBFacade:
             return None
 
         if "email" in data:
-            new_email = data.get("email")
-            for u in self.user_repo.get_all():
-                if u.email == new_email and u.id != user_id:
-                    raise ValueError(f"User with email '{new_email}' already exists")
+            raise ValueError("You cannot modify email")
+        if "password" in data:
+            raise ValueError("You cannot modify password")
+        if "is_admin" in data:
+            raise ValueError("You cannot modify is_admin")
 
         user.update(data)
 
@@ -114,7 +110,7 @@ class HBnBFacade:
             "updated_at": user.updated_at.isoformat()
         }
 
-            def authenticate_user(self, email, password):
+    def authenticate_user(self, email, password):
         if not email or not password:
             return None
 
@@ -153,13 +149,12 @@ class HBnBFacade:
             latitude=place_data.get("latitude"),
             longitude=place_data.get("longitude"),
             owner=owner
-            )
+        )
 
         for amenity in amenities:
             place.add_amenity(amenity)
 
         self.place_repo.add(place)
-
 
         return {
             "id": place.id,
@@ -170,12 +165,13 @@ class HBnBFacade:
             "longitude": place.longitude,
             "owner_id": owner.id,
             "amenities": [a.id for a in amenities]
-            }
+        }
 
     def get_place(self, place_id):
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place {place_id} does not exist")
+
         return {
             "id": place.id,
             "title": place.title,
@@ -189,6 +185,7 @@ class HBnBFacade:
                 "last_name": place.owner.last_name,
                 "email": place.owner.email
             },
+            "owner_id": place.owner.id,
             "amenities": [{"id": a.id, "name": a.name} for a in place.amenities]
         }
 
@@ -199,7 +196,8 @@ class HBnBFacade:
                 "id": p.id,
                 "title": p.title,
                 "latitude": p.latitude,
-                "longitude": p.longitude
+                "longitude": p.longitude,
+                "owner_id": p.owner.id if hasattr(p, "owner") and p.owner else None
             }
             for p in places
         ]
@@ -209,15 +207,14 @@ class HBnBFacade:
         if not place:
             return None
 
-        simple_fields = {k: v for k, v in place_data.items()
-                        if k in {"title", "description", "price", "latitude", "longitude"}}
-        place.update(simple_fields)
-
         if "owner_id" in place_data:
-            owner = self.user_repo.get(place_data["owner_id"])
-            if not owner:
-                raise ValueError(f"Owner {place_data['owner_id']} does not exist")
-            place.owner = owner
+            raise ValueError("You cannot modify the owner of a place")
+
+        simple_fields = {
+            k: v for k, v in place_data.items()
+            if k in {"title", "description", "price", "latitude", "longitude"}
+        }
+        place.update(simple_fields)
 
         if "amenities" in place_data:
             amenities = []
@@ -228,7 +225,16 @@ class HBnBFacade:
                 amenities.append(amenity)
             place.amenities = amenities
 
-        return {"message": "Place updated successfully"}
+        return {
+            "id": place.id,
+            "title": place.title,
+            "description": place.description,
+            "price": place.price,
+            "latitude": place.latitude,
+            "longitude": place.longitude,
+            "owner_id": place.owner.id,
+            "amenities": [a.id for a in place.amenities]
+        }
 
     # Review Management Methods
     def create_review(self, review_data):
@@ -238,14 +244,25 @@ class HBnBFacade:
         place_id = review_data.get("place_id")
         text = review_data.get("text")
         rating = review_data.get("rating")
+
         user = self.user_repo.get(user_id)
         if not user:
             raise ValueError(f"User {user_id} does not exist")
+
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place {place_id} does not exist")
+
+        if place.owner.id == user_id:
+            raise ValueError("You cannot review your own place")
+
+        for review in self.review_repo.get_all():
+            if review.user.id == user_id and review.place.id == place_id:
+                raise ValueError("You have already reviewed this place")
+
         review = Review(text=text, rating=rating, place=place, user=user)
         self.review_repo.add(review)
+
         return {
             "id": review.id,
             "text": review.text,
@@ -258,6 +275,7 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         if not review:
             raise ValueError(f"Review {review_id} does not exist")
+
         return {
             "id": review.id,
             "text": review.text,
@@ -282,6 +300,7 @@ class HBnBFacade:
         place = self.place_repo.get(place_id)
         if not place:
             raise ValueError(f"Place {place_id} does not exist")
+
         return [
             {
                 "id": r.id,
@@ -297,7 +316,9 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         if not review:
             return None
+
         review.update(update_data)
+
         return {
             "id": review.id,
             "text": review.text,
@@ -310,6 +331,7 @@ class HBnBFacade:
         review = self.review_repo.get(review_id)
         if not review:
             return False
+
         self.review_repo.delete(review_id)
         return True
 
@@ -359,7 +381,7 @@ class HBnBFacade:
 
         if "name" in amenity_data:
             if not amenity_data["name"]:
-                raise ValueError("Amenity name cannott be empty")
+                raise ValueError("Amenity name cannot be empty")
 
             for a in self.amenity_repo.get_all():
                 if a.name == amenity_data["name"] and a.id != amenity_id:
@@ -371,4 +393,3 @@ class HBnBFacade:
             "id": amenity.id,
             "name": amenity.name
         }
-
