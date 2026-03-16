@@ -1,3 +1,10 @@
+"""
+Review model - Tasks 7 & 8
+Task 7: core attributes + FK columns.
+Task 8: relationship to User (author) added.
+        Relationship to Place comes via backref defined in Place.reviews.
+"""
+
 from app import db
 from .base import BaseModel
 
@@ -5,46 +12,38 @@ from .base import BaseModel
 class Review(BaseModel):
     __tablename__ = 'reviews'
 
-    text    = db.Column(db.Text, nullable=False)
-    rating  = db.Column(db.Integer, nullable=False)
-    user_id  = db.Column(db.String(36), db.ForeignKey('users.id'),  nullable=False)
+    # Core attributes (Task 7)
+    text   = db.Column(db.Text,    nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+
+    # Foreign keys (Task 7)
     place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
+    user_id  = db.Column(db.String(36), db.ForeignKey('users.id'),  nullable=False)
 
-    def __init__(self, text: str, rating: int, place, user):
-        super().__init__()
-        self.text     = self._validate_text(text)
-        self.rating   = self._validate_rating(rating)
-        self.place_id = place.id
-        self.user_id  = user.id
+    # One review per user per place
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'place_id', name='uq_user_place_review'),
+    )
 
-        self._place = place
-        self._user  = user
-
-    @staticmethod
-    def _validate_text(value: str) -> str:
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError("text is required")
-        return value.strip()
-
-    @staticmethod
-    def _validate_rating(value: int) -> int:
-        if not isinstance(value, int):
-            raise ValueError("rating must be an integer")
-        if value < 1 or value > 5:
-            raise ValueError("rating must be between 1 and 5")
-        return value
-
-    @property
-    def place(self):
-        return self._place
-
-    @property
-    def user(self):
-        return self._user
-
-    def update(self, data: dict):
-        if "text" in data:
-            self.text = self._validate_text(data["text"])
-        if "rating" in data:
-            self.rating = self._validate_rating(data["rating"])
-        self.save()
+    # Relationships (Task 8)
+    # Many-to-one: review.author  /  backref adds user.written_reviews
+    author = db.relationship(
+        'User',
+        backref=db.backref('written_reviews', lazy=True),
+        lazy=True,
+        foreign_keys=[user_id]
+    )
+    
+    # Note: review.place is provided automatically by the backref
+    # defined in Place.reviews (place.py).
+    # Serialisation
+    def to_dict(self):
+        return {
+            'id':         self.id,
+            'text':       self.text,
+            'rating':     self.rating,
+            'place_id':   self.place_id,
+            'user_id':    self.user_id,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+        }
