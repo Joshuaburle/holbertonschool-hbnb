@@ -423,3 +423,18 @@ class HBnBFacade:
             "id":   amenity.id,
             "name": amenity.name
         }
+
+
+    # Task 8 helper: attach amenities to a place
+    def add_amenity_to_place(self, place_id: str, amenity_id: str) -> Place:
+        place   = self.place_repo.get(place_id)
+        amenity = self.amenity_repo.get(amenity_id)
+        if not place:
+            raise ValueError('Place not found')
+        if not amenity:
+            raise ValueError('Amenity not found')
+        if amenity not in place.amenities:
+            place.amenities.append(amenity)
+            from app.extensions import db
+            db.session.commit()
+        return place
