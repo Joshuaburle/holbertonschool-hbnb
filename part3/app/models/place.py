@@ -1,94 +1,61 @@
+"""
+Place model - Tasks 7 & 8
+Task 7: core attributes + FK columns.
+Task 8: relationship() added for User (owner), Review (one-to-many),
+        and Amenity (many-to-many via place_amenity association table).
+"""
+
 from app import db
 from .base import BaseModel
 
+# Association table - Place <-> Amenity (many-to-many)
+place_amenity = db.Table(
+    'place_amenity',
+    db.Column('place_id',   db.String(36), db.ForeignKey('places.id'),    primary_key=True),
+    db.Column('amenity_id', db.String(36), db.ForeignKey('amenities.id'), primary_key=True)
+)
 
 class Place(BaseModel):
     __tablename__ = 'places'
 
-    title       = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=True, default="")
-    price       = db.Column(db.Float, nullable=False)
-    latitude    = db.Column(db.Float, nullable=False)
-    longitude   = db.Column(db.Float, nullable=False)
+    # Core attributes (Task 7)
+    title       = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text,        nullable=True)
+    price       = db.Column(db.Float,       nullable=False)
+    latitude    = db.Column(db.Float,       nullable=True)
+    longitude   = db.Column(db.Float,       nullable=True)
+
+    # Foreign key (Task 7)
     owner_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
 
-    def __init__(
-        self,
-        title: str,
-        description: str,
-        price: float,
-        latitude: float,
-        longitude: float,
-        owner_id: str,
-    ):
-        super().__init__()
-        self.title       = self._validate_title(title)
-        self.description = description or ""
-        self.price       = self._validate_price(price)
-        self.latitude    = self._validate_latitude(latitude)
-        self.longitude   = self._validate_longitude(longitude)
-        self.owner_id    = owner_id
+    # Relationships (Task 8)
+    # Many-to-one: place.owner / backref adds user.places
+    owner = db.relationship('User', backref=db.backref('places', lazy=True), lazy=True)
 
-        self._amenities = []
+    # One-to-many: place.reviews  (cascade deletes orphan reviews)
+    reviews = db.relationship('Review', backref='place', lazy=True, cascade='all, delete-orphan')
 
-    @staticmethod
-    def _validate_title(value: str) -> str:
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError("title is required")
-        value = value.strip()
-        if len(value) > 100:
-            raise ValueError("title must be <= 100 characters")
-        return value
+    # Many-to-many: place.amenities  /  backref adds amenity.places
+    amenities = db.relationship(
+        'Amenity',
+        secondary=place_amenity,
+        lazy='subquery',
+        backref=db.backref('places', lazy=True)
+    )
 
-    @staticmethod
-    def _validate_price(value) -> float:
-        if not isinstance(value, (int, float)):
-            raise ValueError("price must be a number")
-        value = float(value)
-        if value <= 0:
-            raise ValueError("price must be a positive value")
-        return value
+    # Serialisation
 
-    @staticmethod
-    def _validate_latitude(value) -> float:
-        if not isinstance(value, (int, float)):
-            raise ValueError("latitude must be a number")
-        value = float(value)
-        if value < -90.0 or value > 90.0:
-            raise ValueError("latitude must be between -90 and 90")
-        return value
-
-    @staticmethod
-    def _validate_longitude(value) -> float:
-        if not isinstance(value, (int, float)):
-            raise ValueError("longitude must be a number")
-        value = float(value)
-        if value < -180.0 or value > 180.0:
-            raise ValueError("longitude must be between -180 and 180")
-        return value
-
-    @property
-    def amenities(self):
-        return self._amenities
-
-    @amenities.setter
-    def amenities(self, value):
-        self._amenities = value
-
-    def add_amenity(self, amenity):
-        if any(a.id == amenity.id for a in self._amenities):
-            return
-        self._amenities.append(amenity)
-
-    def update(self, data: dict):
-        if "title" in data:
-            self.title = self._validate_title(data["title"])
-        if "description" in data:
-            self.description = data["description"] or ""
-        if "price" in data:
-            self.price = self._validate_price(data["price"])
-        if "latitude" in data:
-            self.latitude = self._validate_latitude(data["latitude"])
-        if "longitude" in data:
-            self.longitude = self._validate_longitude(data["longitude"])
-        self.save()
+    def to_dict(self):
+        return {
+            'id':          self.id,
+            'title':       self.title,
+            'description': self.description,
+            'price':       self.price,
+            'latitude':    self.latitude,
+            'longitude':   self.longitude,
+            'owner_id':    self.owner_id,
+            'amenities':   [a.to_dict() for a in self.amenities],
+            'reviews':     [r.to_dict() for r in self.reviews],
+            'created_at':  self.created_at.isoformat(),
+            'updated_at':  self.updated_at.isoformat(),
+        }
