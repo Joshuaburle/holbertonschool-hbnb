@@ -1,9 +1,11 @@
-from app.persistence.repository import InMemoryRepository
+from app.persistence.repository import InMemoryRepository, SQLAlchemyRepository
  
  
 class HBnBFacade:
     def __init__(self):
-        self.user_repo = InMemoryRepository()
+        from app.models.user import User
+        
+        self.user_repo = SQLAlchemyRepository(User)
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
