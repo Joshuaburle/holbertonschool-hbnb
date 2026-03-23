@@ -98,20 +98,20 @@ class PlaceResource(Resource):
  
         try:
             place = facade.get_place(place_id)
-            if not place:
-                api.abort(404, "Place not found")
+        except ValueError:
+            api.abort(404, "Place not found")
  
-            owner_id = place.get("owner_id")
-            if not owner_id and "owner" in place:
-                owner_id = place["owner"]["id"]
+        owner_id = place.get("owner_id")
+        if not owner_id and "owner" in place:
+            owner_id = place["owner"]["id"]
  
-            if not is_admin and owner_id != current_user_id:
-                api.abort(403, "Unauthorized action")
+        if not is_admin and owner_id != current_user_id:
+            api.abort(403, "Unauthorized action")
  
+        try:
             result = facade.update_place(place_id, api.payload)
             if result is None:
                 api.abort(404, "Place not found")
- 
             return result, 200
         except ValueError as e:
             api.abort(400, str(e))

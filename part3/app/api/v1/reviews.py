@@ -80,16 +80,16 @@ class ReviewResource(Resource):
  
         try:
             review = facade.get_review_by_id(review_id)
-            if not review:
-                api.abort(404, "Review not found")
+        except ValueError:
+            api.abort(404, "Review not found")
  
-            if not is_admin and review["user_id"] != current_user_id:
-                api.abort(403, "Unauthorized action")
+        if not is_admin and review["user_id"] != current_user_id:
+            api.abort(403, "Unauthorized action")
  
+        try:
             updated_review = facade.update_review(review_id, api.payload)
             if not updated_review:
                 api.abort(404, "Review not found")
- 
             return updated_review, 200
         except (ValueError, TypeError) as e:
             api.abort(400, str(e))
@@ -106,16 +106,14 @@ class ReviewResource(Resource):
  
         try:
             review = facade.get_review_by_id(review_id)
-            if not review:
-                api.abort(404, "Review not found")
+        except ValueError:
+            api.abort(404, "Review not found")
  
-            if not is_admin and review["user_id"] != current_user_id:
-                api.abort(403, "Unauthorized action")
+        if not is_admin and review["user_id"] != current_user_id:
+            api.abort(403, "Unauthorized action")
  
-            success = facade.delete_review(review_id)
-            if not success:
-                api.abort(404, "Review not found")
+        success = facade.delete_review(review_id)
+        if not success:
+            api.abort(404, "Review not found")
  
-            return {"message": "Review deleted successfully"}, 200
-        except ValueError as e:
-            api.abort(400, str(e))
+        return {"message": "Review deleted successfully"}, 200
