@@ -1,0 +1,58 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+header,
+footer,
+nav {
+  padding: 15px 20px;
+}
+
+header,
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nav a {
+  margin-right: 15px;
+  text-decoration: none;
+}
+
+.logo {
+  height: 50px;
+}
+
+.login-button,
+button,
+.details-button {
+  text-decoration: none;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.form-container {
+  max-width: 400px;
+  margin: 40px auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.place-card,
+.review-card,
+.place-details {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
