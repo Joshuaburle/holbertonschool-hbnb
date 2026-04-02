@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HBnB — Places</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="scripts/config.js"></script>
-    <script src="scripts/utils.js"></script>
-    <script defer src="scripts/index.js"></script>
+    <!-- No JavaScript for this static version -->
   </head>
   <body>
     <header>
@@ -21,9 +19,27 @@
     </header>
 
     <main>
-      <section>
+      <section class="container-center">
         <h1>Places</h1>
-        <div id="places-list"></div>
+        <div class="cards-grid" id="places-list">
+          <article class="place-card">
+            <h3>Cozy Studio</h3>
+            <p>Price: $80 / night</p>
+            <a class="details-button" href="place.html">View Details</a>
+          </article>
+
+          <article class="place-card">
+            <h3>Seaside Apartment</h3>
+            <p>Price: $120 / night</p>
+            <a class="details-button" href="place.html">View Details</a>
+          </article>
+
+          <article class="place-card">
+            <h3>Mountain Cabin</h3>
+            <p>Price: $95 / night</p>
+            <a class="details-button" href="place.html">View Details</a>
+          </article>
+        </div>
       </section>
     </main>
 

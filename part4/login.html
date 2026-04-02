@@ -1,18 +1,15 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>HBnB — Login</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="scripts/config.js"></script>
-    <script src="scripts/utils.js"></script>
-    <script defer src="scripts/auth.js"></script>
   </head>
   <body>
     <header>
       <div>
-  <img class="logo" src="images/logo.png" alt="HBnB logo" />
+        <img class="logo" src="images/logo.png" alt="HBnB logo" />
       </div>
       <nav>
         <a href="index.html">Home</a>
@@ -23,14 +20,15 @@
     <main>
       <section class="form-container">
         <h1>Login</h1>
-        <form id="login-form" class="form" novalidate>
+
+        <form id="login-form" novalidate>
           <label for="email">Email</label>
           <input id="email" name="email" type="email" required />
 
           <label for="password">Password</label>
           <input id="password" name="password" type="password" required />
 
-          <div id="error-message" style="color: #b00020;"></div>
+          <p id="error-message" style="color:red; margin:8px 0 0 0;"></p>
 
           <button type="submit" class="login-button">Login</button>
         </form>
@@ -40,5 +38,9 @@
     <footer>
       <p>All rights reserved.</p>
     </footer>
+
+    <!-- Load config (defines API_BASE_URL) first, then auth logic -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/auth.js"></script>
   </body>
 </html>

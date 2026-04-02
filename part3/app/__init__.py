@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_restx import Api
+from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy
@@ -19,6 +20,9 @@ def create_app(config_class):
     bcrypt.init_app(app)
     jwt.init_app(app)
     db.init_app(app)
+    # Enable CORS for API routes so frontend served from :5500 can call the API
+    # Allow only the development frontend origin for routes under /api/*
+    CORS(app, resources={r"/api/*": {"origins": "http://127.0.0.1:5500"}})
 
     from app.api.v1 import namespaces as v1_namespaces
 

@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HBnB — Place Details</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="scripts/config.js"></script>
-    <script src="scripts/utils.js"></script>
-    <script defer src="scripts/place.js"></script>
+    <!-- No JavaScript for this static version -->
   </head>
   <body>
     <header>
@@ -22,9 +20,32 @@
 
     <main>
       <section class="place-details">
-        <div id="place-info" class="place-info"></div>
-        <div id="reviews-list"></div>
-        <div id="review-action"></div>
+        <div class="place-info">
+          <h2>Cozy Studio</h2>
+          <p><strong>Host:</strong> John Doe</p>
+          <p><strong>Price:</strong> $80 / night</p>
+          <p class="description">A lovely studio in the city center, close to amenities and transport.</p>
+          <p><strong>Amenities:</strong> WiFi, Kitchen, Heating</p>
+        </div>
+
+        <aside>
+          <a class="details-button" href="add_review.html">Add a review</a>
+        </aside>
+
+        <div class="reviews">
+          <h3>Reviews</h3>
+          <article class="review-card">
+            <p>Great place, very cozy.</p>
+            <p><strong>User:</strong> alice@example.com</p>
+            <p><strong>Rating:</strong> 5</p>
+          </article>
+
+          <article class="review-card">
+            <p>Comfortable and clean.</p>
+            <p><strong>User:</strong> bob@example.com</p>
+            <p><strong>Rating:</strong> 4</p>
+          </article>
+        </div>
       </section>
     </main>
 

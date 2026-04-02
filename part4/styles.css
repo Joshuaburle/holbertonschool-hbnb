@@ -56,3 +56,51 @@ button,
   border: 1px solid #ddd;
   border-radius: 10px;
 }
+
+/* Layout and responsive */
+main {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.container-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Details button */
+.details-button {
+  display: inline-block;
+  padding: 8px 12px;
+  background: #007bff;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.place-info {
+  margin: 10px 0;
+}
+
+.place-details {
+  background: #fff;
+}
+
+.review-card {
+  background: #fafafa;
+}
+
+/* form styles */
+.form label { font-weight: 600; }
+.form input, .form textarea { padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
+
+@media (min-width: 700px) {
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+}
