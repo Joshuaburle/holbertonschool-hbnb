@@ -73,17 +73,22 @@ class PlaceList(Resource):
  
  
 @api.route('/<string:place_id>')
+@api.route('/<string:place_id>/')
 class PlaceResource(Resource):
     @api.marshal_with(place_response_model)
     @api.response(200, 'Place details retrieved successfully')
     @api.response(404, 'Place not found')
     def get(self, place_id):
-        """Get place details by ID"""
+        """Get place details by ID
+
+        This endpoint is registered with and without a trailing slash so
+        both /places/<id> and /places/<id>/ work without redirects or 404s.
+        """
         try:
             return facade.get_place(place_id), 200
         except ValueError:
             api.abort(404, "Place not found")
- 
+
     @jwt_required()
     @api.expect(place_update_model, validate=True)
     @api.response(200, 'Place updated successfully')
@@ -95,19 +100,19 @@ class PlaceResource(Resource):
         current_user_id = get_jwt_identity()
         claims = get_jwt()
         is_admin = claims.get("is_admin", False)
- 
+
         try:
             place = facade.get_place(place_id)
         except ValueError:
             api.abort(404, "Place not found")
- 
+
         owner_id = place.get("owner_id")
         if not owner_id and "owner" in place:
             owner_id = place["owner"]["id"]
- 
+
         if not is_admin and owner_id != current_user_id:
             api.abort(403, "Unauthorized action")
- 
+
         try:
             result = facade.update_place(place_id, api.payload)
             if result is None:

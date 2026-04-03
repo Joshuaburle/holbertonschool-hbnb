@@ -64,9 +64,11 @@ function displayPlaces(places) {
   }
 
   places.forEach((place) => {
+    // Basic fields with safe fallbacks
+    const id = place.id || '';
     const title = place.title || place.name || 'Untitled place';
-    const description = place.description || place.desc || '';
-    const price = (place.price !== undefined && place.price !== null) ? place.price : '';
+    const description = place.description || place.desc || 'No description available.';
+    const price = (place.price !== undefined && place.price !== null) ? place.price : 'N/A';
     const lat = place.latitude || place.lat || null;
     const lon = place.longitude || place.lon || null;
 
@@ -81,26 +83,25 @@ function displayPlaces(places) {
     h.textContent = title;
     card.appendChild(h);
 
-    if (description) {
-      const p = document.createElement('p');
-      p.textContent = description;
-      card.appendChild(p);
-    }
+    const descP = document.createElement('p');
+    descP.textContent = description;
+    card.appendChild(descP);
 
-    if (price !== '') {
-      const pprice = document.createElement('p');
-      pprice.textContent = `Price: $${price}`;
-      card.appendChild(pprice);
-    }
+    const priceP = document.createElement('p');
+    priceP.textContent = `Price: $${price}`;
+    card.appendChild(priceP);
 
+    const locP = document.createElement('p');
     if (lat && lon) {
-      const loc = document.createElement('p');
-      loc.textContent = `Location: ${lat}, ${lon}`;
-      card.appendChild(loc);
+      locP.textContent = `Location: ${lat}, ${lon}`;
+    } else {
+      locP.textContent = 'Location: N/A';
     }
+    card.appendChild(locP);
 
+    // View Details link uses the real place id
     const details = document.createElement('a');
-    details.href = `place.html?id=${encodeURIComponent(place.id || '')}`;
+    details.href = `place.html?id=${encodeURIComponent(id)}`;
     details.textContent = 'View Details';
     details.className = 'details-button';
     card.appendChild(details);

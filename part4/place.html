@@ -20,37 +20,22 @@
 
     <main>
       <section class="place-details">
-        <div class="place-info">
-          <h2>Cozy Studio</h2>
-          <p><strong>Host:</strong> John Doe</p>
-          <p><strong>Price:</strong> $80 / night</p>
-          <p class="description">A lovely studio in the city center, close to amenities and transport.</p>
-          <p><strong>Amenities:</strong> WiFi, Kitchen, Heating</p>
-        </div>
+        <!-- Dynamic place details will be injected here by scripts/place.js -->
+        <div id="place-details" class="place-info"></div>
 
-        <aside>
-          <a class="details-button" href="add_review.html">Add a review</a>
+        <!-- Add review area; scripts/place.js will show/hide this based on auth -->
+        <aside id="add-review">
+          <a id="add-review-link" class="details-button" href="add_review.html">Add a review</a>
         </aside>
-
-        <div class="reviews">
-          <h3>Reviews</h3>
-          <article class="review-card">
-            <p>Great place, very cozy.</p>
-            <p><strong>User:</strong> alice@example.com</p>
-            <p><strong>Rating:</strong> 5</p>
-          </article>
-
-          <article class="review-card">
-            <p>Comfortable and clean.</p>
-            <p><strong>User:</strong> bob@example.com</p>
-            <p><strong>Rating:</strong> 4</p>
-          </article>
-        </div>
       </section>
     </main>
 
     <footer>
       <p>All rights reserved.</p>
     </footer>
+
+    <!-- scripts: config must load before place.js -->
+    <script src="scripts/config.js"></script>
+    <script src="scripts/place.js"></script>
   </body>
 </html>
