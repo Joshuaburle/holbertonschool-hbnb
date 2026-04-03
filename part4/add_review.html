@@ -5,30 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HBnB — Add Review</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- No JavaScript for this static version -->
   </head>
   <body>
     <header>
-      <div>
-  <img class="logo" src="images/logo.png" alt="HBnB logo">
+      <div class="site-header">
+        <div class="left">
+          <img class="logo" src="images/logo.png" alt="HBnB logo">
+        </div>
+        <nav>
+          <a href="index.html">Home</a>
+          <a href="login.html" class="login-button">Login</a>
+        </nav>
       </div>
-      <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html" class="login-button">Login</a>
-      </nav>
     </header>
 
     <main>
-      <section class="form-container add-review">
+      <section class="form-container">
         <h1>Add a Review</h1>
-        <form class="form" novalidate>
-          <label for="rating">Rating (1-5)</label>
-          <input id="rating" name="rating" type="number" min="1" max="5" required />
 
-          <label for="text">Comment</label>
-          <textarea id="text" name="text" rows="4" required></textarea>
+        <form id="review-form" class="form">
+          <label for="rating">Rating (1-5)</label>
+          <input id="rating" name="rating" type="number" min="1" max="5" required>
+
+          <label for="comment">Comment</label>
+          <textarea id="comment" name="comment" rows="5" required></textarea>
 
           <button type="submit">Submit Review</button>
+          <p id="message"></p>
         </form>
       </section>
     </main>
@@ -36,5 +39,8 @@
     <footer>
       <p>All rights reserved.</p>
     </footer>
+
+    <script src="scripts/config.js"></script>
+    <script src="scripts/add_review.js"></script>
   </body>
 </html>

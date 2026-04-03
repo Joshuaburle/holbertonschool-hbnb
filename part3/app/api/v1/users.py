@@ -57,21 +57,23 @@ class UserList(Resource):
  
         return facade.get_all_users()
  
-    @jwt_required()
     @api.expect(user_create_model, validate=True)
     @api.marshal_with(user_model, code=201)
     def post(self):
-        """Create a new user — admin only"""
-        claims = get_jwt()
-        if not claims.get("is_admin"):
-            api.abort(403, "Admin privileges required")
- 
-        email = api.payload.get("email")
+        """Create a new user. No authentication required."""
+        data = api.payload or {}
+        email = data.get("email")
+
+        if not email:
+            api.abort(400, "Email is required")
+
         if facade.get_user_by_email(email):
             api.abort(400, "Email already registered")
- 
+
+        # Let the facade/model handle password hashing and validations
         try:
-            return facade.create_user(api.payload), 201
+            user = facade.create_user(data)
+            return user, 201
         except ValueError as e:
             api.abort(400, str(e))
  

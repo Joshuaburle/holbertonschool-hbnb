@@ -1,61 +1,114 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // Ensure user is authenticated
-  redirectIfNotAuthenticated('index.html');
+console.log('add_review.js loaded');
 
-  const placeId = getQueryParam('place_id');
-  const form = document.getElementById('add-review-form');
-  const errorMessage = document.getElementById('error-message');
+function getCookie(name) {
+  const cookies = document.cookie ? document.cookie.split('; ') : [];
+  for (const cookie of cookies) {
+    const [key, ...valueParts] = cookie.split('=');
+    if (key === name) {
+      return decodeURIComponent(valueParts.join('='));
+    }
+  }
+  return null;
+}
+
+function checkAuthentication() {
+  const token = getCookie('token');
+  console.log('Token:', token);
+
+  if (!token) {
+    window.location.href = 'index.html';
+    return null;
+  }
+
+  return token;
+}
+
+function getPlaceIdFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+
+async function submitReview(token, placeId, comment, rating) {
+  const url = `${API_BASE_URL}/reviews/`;
+  console.log('POST →', url);
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({
+      text: comment,
+      rating: Number(rating),
+      place_id: placeId
+    })
+  });
+
+  console.log('Status:', response.status);
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(errorText || `Failed to submit review (${response.status})`);
+  }
+
+  return await response.json().catch(() => ({}));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM loaded');
+
+  const token = checkAuthentication();
+  if (!token) return;
+
+  const placeId = getPlaceIdFromURL();
+  console.log('Place ID:', placeId);
+
+  const form = document.getElementById('review-form');
+  const message = document.getElementById('message');
+  const loginLink = document.querySelector('a.login-button');
+
+  if (loginLink) {
+    loginLink.style.display = 'none';
+  }
 
   if (!placeId) {
-    errorMessage.textContent = 'Missing place id';
+    if (message) {
+      message.textContent = 'Missing place ID';
+      message.style.color = 'red';
+    }
     return;
   }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorMessage.textContent = '';
+  if (!form) {
+    console.error('review-form not found');
+    return;
+  }
 
-    const rating = parseInt(document.getElementById('rating').value, 10);
-    const text = document.getElementById('text').value.trim();
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
 
-    if (!rating || rating < 1 || rating > 5) {
-      errorMessage.textContent = 'Rating must be between 1 and 5';
+    const rating = document.getElementById('rating').value;
+    const comment = document.getElementById('comment').value.trim();
+
+    if (!comment) {
+      message.textContent = 'Comment required';
+      message.style.color = 'red';
       return;
     }
-
-    if (!text) {
-      errorMessage.textContent = 'Comment cannot be empty';
-      return;
-    }
-
-    const token = getToken();
-    const user_id = getCookie('user_id');
-
-    const payload = {
-      rating,
-      text,
-      place_id: placeId
-    };
-
-    if (user_id) payload.user_id = user_id;
 
     try {
-      const res = await fetch(`${API_BASE_URL}/reviews`, {
-        method: 'POST',
-        headers: Object.assign(
-          { 'Content-Type': 'application/json' },
-          token ? { Authorization: `Bearer ${token}` } : {}
-        ),
-        body: JSON.stringify(payload)
-      });
+      await submitReview(token, placeId, comment, rating);
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Failed to submit review');
+      message.textContent = 'Review added successfully!';
+      message.style.color = 'green';
+      form.reset();
 
-      // Redirect back to place page
-      window.location.href = `place.html?id=${placeId}`;
-    } catch (err) {
-      errorMessage.textContent = err.message;
+      window.location.href = `place.html?id=${encodeURIComponent(placeId)}`;
+    } catch (error) {
+      console.error(error);
+      message.textContent = `Error: ${error.message}`;
+      message.style.color = 'red';
     }
   });
 });

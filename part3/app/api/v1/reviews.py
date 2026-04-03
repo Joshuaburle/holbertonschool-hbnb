@@ -37,8 +37,18 @@ class ReviewList(Resource):
         data = api.payload
         data["user_id"] = get_jwt_identity()
  
+        # Debug logs for tracing review creation
+        try:
+            api.logger.info(f"Creating review - user_id: {data.get('user_id')}, place_id: {data.get('place_id')}")
+        except Exception:
+            pass
+
         try:
             new_review = facade.create_review(data)
+            try:
+                api.logger.info(f"Review created: {new_review.get('id')} for place {new_review.get('place_id')} by user {new_review.get('user_id')}")
+            except Exception:
+                pass
             return new_review, 201
         except (ValueError, TypeError) as e:
             api.abort(400, str(e))

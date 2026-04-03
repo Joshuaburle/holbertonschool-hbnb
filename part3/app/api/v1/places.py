@@ -15,16 +15,27 @@ user_model = api.model('PlaceUser', {
     'last_name': fields.String(description='Last name of the owner'),
     'email': fields.String(description='Email of the owner')
 })
+
+# Nested review model used when returning place details
+place_review_model = api.model('PlaceReview', {
+    'id': fields.String(readonly=True, description='Review ID'),
+    'text': fields.String(description='Text of the review'),
+    'rating': fields.Integer(description='Rating of the place (1-5)'),
+    'user_id': fields.String(description='ID of the user'),
+    'user_email': fields.String(description='Email of the reviewer', allow_null=True)
+})
  
 place_response_model = api.model('PlaceResponse', {
     'id': fields.String(readonly=True, description='Place ID'),
     'title': fields.String(required=True, description='Title of the place'),
-    'description': fields.String(description='Description of the place'),
+    'description': fields.String(description='Description of the place', allow_null=True),
     'price': fields.Float(required=True, description='Price per night'),
     'latitude': fields.Float(required=True, description='Latitude of the place'),
     'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(description='ID of the owner'),
-    'amenities': fields.List(fields.String, description="List of amenities IDs")
+    'owner': fields.Nested(user_model, allow_null=True, description='Owner details'),
+    'amenities': fields.List(fields.Nested(amenity_model), description="List of amenities"),
+    'reviews': fields.List(fields.Nested(place_review_model), description='List of reviews for the place')
 })
  
 place_create_model = api.model('PlaceCreate', {
@@ -85,9 +96,20 @@ class PlaceResource(Resource):
         both /places/<id> and /places/<id>/ work without redirects or 404s.
         """
         try:
-            return facade.get_place(place_id), 200
-        except ValueError:
+            print(f"[DEBUG] Fetching place with ID: {place_id}")
+            place_data = facade.get_place(place_id)
+            print(f"[DEBUG] Place fetched successfully: {place_data.get('title')}")
+            print(f"[DEBUG] Amenities count: {len(place_data.get('amenities', []))}")
+            print(f"[DEBUG] Reviews count: {len(place_data.get('reviews', []))}")
+            return place_data, 200
+        except ValueError as e:
+            print(f"[ERROR] Place not found: {str(e)}")
             api.abort(404, "Place not found")
+        except Exception as e:
+            print(f"[ERROR] Unexpected error fetching place {place_id}: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            api.abort(500, f"Internal server error: {str(e)}")
 
     @jwt_required()
     @api.expect(place_update_model, validate=True)
